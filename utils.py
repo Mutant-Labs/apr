@@ -265,6 +265,11 @@ def getAPR(mcUsdRatio, totalRewardRate, totalStakedInUSDC):
         return 0
     else:
         totalYearlyRewards = totalRewardRate * 3600 * 24 * 365
+        print("=== totalRewardRate", totalRewardRate)
+        print("=== totalYearlyRewards", totalYearlyRewards)
+        print("=== totalStakedInUSDC", totalStakedInUSDC)
+        print("=== mcUsdRatio", mcUsdRatio)
+        print("=== apr", totalYearlyRewards*100*10**6/(totalStakedInUSDC*mcUsdRatio))
         return totalYearlyRewards*100*10**6/(totalStakedInUSDC*mcUsdRatio)
 
 @retry((ValueError), delay=10, tries=5)
