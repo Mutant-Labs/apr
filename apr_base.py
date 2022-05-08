@@ -22,15 +22,11 @@ from utils import (
 
 
 v1_pools = {
-    0: "0x00dbf792f23D162Bcf84F9BC979CAc15025D9F8c", #MCOIN-fNear
-    1: "0x433FCcF7df0A8b8c31A31C74A6EA917aAB520d70", #fNear-fUSDC
-    2: "0xd2D3EB8Ee7341B8a6AF8C499CF3DeC6c0a45fF27", #MCOIN-fUSDC
-    # Old chef pools
-    # 0: "0xaF00ba46B3e7Fea7E39fF320534677a51B88D39C",
-    # 1: "0x43413cAB62F19e2B347dC50504bf21fE0DCE3790",
-    # 2: "0x62c1e1dadEbDEDa9FF397a48239D2D0a1E4E71C8",
-    # 3: "0x0348fA0B2289beFa36956F3C95135572C2bc61B3",
-    # 4: "0xA6335CCdAa874bb9E0cffDdA4e49F3186435B320",
+    0: "0x85FF572687720059AF0f045c84EB7e7dD677c245", #MCOIN-NEAR
+    1: "0xc46972d2752E815e56Ab9931C9d12783297518A0", #MCOIN-WETH
+    2: "0xc8725b04Cce22B46d404d6B7698C92aDe98b3C02", #MCOIN-USDT
+    3: "0x5Df4ea8AE6bEaCC6ABF3FB2E477d4e4b938DcE19", #MCOIN-USDC
+    4: "0xc86c9D8ccD5dC6502a04f3d0a00c00018057766b", #USDT-USDC
 }
 
 v2_pools = {
@@ -100,7 +96,7 @@ v2_pools = {
         #     }
     }
 
-web3_url = os.getenv("AURORA_W3_URL", "https://testnet.aurora.dev/")
+web3_url = os.getenv("AURORA_W3_URL", "https://mainnet.aurora.dev/")
 w3 = Web3(Web3.HTTPProvider(web3_url))
 
 def apr_base():
@@ -134,23 +130,6 @@ def apr_base():
     # print(f"GBA USDC Ratio: {gbaUsdcRatio/10**12}")
 
     for id, address in v1_pools.items():
-        # if id < 3:
-        #     data.append(
-        #         {
-        #             "id": id,
-        #             "poolId": id,
-        #             "lpAddress": address,
-        #             "totalSupply": 0,
-        #             "totalStaked": 0,
-        #             "totalStakedInUSD": 0,
-        #             "totalRewardRate": 0,
-        #             "allocPoint": 0,
-        #             "apr": 0,
-        #             "apr2": 0,
-        #             "chefVersion": "v1",
-        #         }
-        #     )
-        #     continue
         print("V1 Reached here", address)
         tlp = init_tlp(w3, address)
         poolInfo = chef.functions.poolInfo(id).call()
@@ -196,82 +175,82 @@ def apr_base():
         )
 
     #Get alloc point of dummy LP pool in Chef V1
-    dummyLPPoolId = 0
-    dummyLPToken = "0x00dbf792f23D162Bcf84F9BC979CAc15025D9F8c"
-    dummyLpPoolInfo = chef.functions.poolInfo(dummyLPPoolId).call()
-    assert dummyLpPoolInfo[0].lower() == dummyLPToken.lower()
-    dummyLpAllocPoint = dummyLpPoolInfo[1]
+    # dummyLPPoolId = 0
+    # dummyLPToken = "0x0314DB010be2BAFec009e309105E4bbCc30b89f7"
+    # dummyLpPoolInfo = chef.functions.poolInfo(dummyLPPoolId).call()
+    # assert dummyLpPoolInfo[0].lower() == dummyLPToken.lower()
+    # dummyLpAllocPoint = dummyLpPoolInfo[1]
 
 
-    # get totalSecondRewardRate for dummy LP in Chef V1
-    dummyLpTotalSecondRewardRate = (mcPerBlock * dummyLpAllocPoint / (totalAllocPoint * 10 ** decimals))
+    # # get totalSecondRewardRate for dummy LP in Chef V1
+    # dummyLpTotalSecondRewardRate = (mcPerBlock * dummyLpAllocPoint / (totalAllocPoint * 10 ** decimals))
 
-    #Chef V2 calls
-    chefv2 = init_chefv2(w3)
-    totalAllocPointV2 = chefv2.functions.totalAllocPoint().call()
-
-
-
-    for id, addresses in v2_pools.items():
-        print(f"V2 Reached here {id}: {addresses['LP']}")
-        tlp = init_tlp(w3, addresses["LP"])
-        poolInfo = chefv2.functions.poolInfo(id).call()
-        allocPoint = poolInfo[2]
-
-        # Rewarder logic
-        rewardsPerBlock = 0
-        if addresses["Aurora Rewarder"] != ZERO_ADDRESS:
-            rewarder = init_rewarder(w3, addresses["Aurora Rewarder"])
-            rewardsPerBlock = rewarder.functions.tokenPerBlock().call()
-            rewardDecimals = 18
-            print(f"Double rewards per block: {rewardsPerBlock}")
-            # if id == 0 or id == 1:
-            #     doubleRewardUsdcRatio = auroraUsdcRatio/10**12
-            # elif id == 2 or id == 3:
-            #     doubleRewardUsdcRatio = lunaUsdcRatio
-            # elif id == 8:
-            #     doubleRewardUsdcRatio = flxUsdcRatio
-            # elif id == 9:
-            #     doubleRewardUsdcRatio = mechaUsdcRatio/10**12
-            # elif id == 10:
-            #     doubleRewardUsdcRatio = solaceUsdcRatio
-            # elif id == 11 or id == 12:
-            #     rewardDecimals = 24
-            #     doubleRewardUsdcRatio = metaUsdcRatio/10**18
-            # elif id == 13 or id == 14:
-            #     doubleRewardUsdcRatio = chronicleUsdcRatio
-            # elif id == 15:
-            #     doubleRewardUsdcRatio = gbaUsdcRatio/10**12
+    # #Chef V2 calls
+    # chefv2 = init_chefv2(w3)
+    # totalAllocPointV2 = chefv2.functions.totalAllocPoint().call()
 
 
 
+    # for id, addresses in v2_pools.items():
+    #     print(f"V2 Reached here {id}: {addresses['LP']}")
+    #     tlp = init_tlp(w3, addresses["LP"])
+    #     poolInfo = chefv2.functions.poolInfo(id).call()
+    #     allocPoint = poolInfo[2]
 
-        #LP staked amts logic
-        reserveInUSDC = getReserveInUsdc(w3, tlp, mcUsdcRatio)
-        totalSupply = tlp.functions.totalSupply().call()
-        totalStaked = tlp.functions.balanceOf(CHEFV2_ADDRESS).call()
-        totalStakedInUSDC = getTotalStakedInUSDC(totalStaked, totalSupply, reserveInUSDC)
-        totalSecondRewardRate = (
-            dummyLpTotalSecondRewardRate * allocPoint / (totalAllocPointV2)
-        )  # Taking MCOIN allocation to dummy LP in chef v1 as mco per block for chef V2
-        totalWeeklyRewardRate = (
-            3600 * 24 * 7 * totalSecondRewardRate
-        )  # TODO: update to return base 10 values
-        data.append(
-                {
-                    "id": len(v1_pools) + id,
-                    "poolId": id,
-                    "lpAddress": addresses["LP"],
-                    "totalSupply": totalSupply,
-                    "totalStaked": totalStaked,
-                    "totalStakedInUSD": totalStakedInUSDC / 10 ** 6,
-                    "totalRewardRate": totalWeeklyRewardRate,
-                    "allocPoint": allocPoint,
-                    "apr": getAPR(mcUsdcRatio/10**12, totalSecondRewardRate, totalStakedInUSDC),
-                    "apr2": getAPR(doubleRewardUsdcRatio, rewardsPerBlock/(10**rewardDecimals), totalStakedInUSDC),
-                    "chefVersion": "v2",
-                }
-        )
+    #     # Rewarder logic
+    #     rewardsPerBlock = 0
+    #     if addresses["Aurora Rewarder"] != ZERO_ADDRESS:
+    #         rewarder = init_rewarder(w3, addresses["Aurora Rewarder"])
+    #         rewardsPerBlock = rewarder.functions.tokenPerBlock().call()
+    #         rewardDecimals = 18
+    #         print(f"Double rewards per block: {rewardsPerBlock}")
+    #         # if id == 0 or id == 1:
+    #         #     doubleRewardUsdcRatio = auroraUsdcRatio/10**12
+    #         # elif id == 2 or id == 3:
+    #         #     doubleRewardUsdcRatio = lunaUsdcRatio
+    #         # elif id == 8:
+    #         #     doubleRewardUsdcRatio = flxUsdcRatio
+    #         # elif id == 9:
+    #         #     doubleRewardUsdcRatio = mechaUsdcRatio/10**12
+    #         # elif id == 10:
+    #         #     doubleRewardUsdcRatio = solaceUsdcRatio
+    #         # elif id == 11 or id == 12:
+    #         #     rewardDecimals = 24
+    #         #     doubleRewardUsdcRatio = metaUsdcRatio/10**18
+    #         # elif id == 13 or id == 14:
+    #         #     doubleRewardUsdcRatio = chronicleUsdcRatio
+    #         # elif id == 15:
+    #         #     doubleRewardUsdcRatio = gbaUsdcRatio/10**12
+
+
+
+
+    #     #LP staked amts logic
+    #     reserveInUSDC = getReserveInUsdc(w3, tlp, mcUsdcRatio)
+    #     totalSupply = tlp.functions.totalSupply().call()
+    #     totalStaked = tlp.functions.balanceOf(CHEFV2_ADDRESS).call()
+    #     totalStakedInUSDC = getTotalStakedInUSDC(totalStaked, totalSupply, reserveInUSDC)
+    #     totalSecondRewardRate = (
+    #         dummyLpTotalSecondRewardRate * allocPoint / (totalAllocPointV2)
+    #     )  # Taking MCOIN allocation to dummy LP in chef v1 as mco per block for chef V2
+    #     totalWeeklyRewardRate = (
+    #         3600 * 24 * 7 * totalSecondRewardRate
+    #     )  # TODO: update to return base 10 values
+    #     data.append(
+    #             {
+    #                 "id": len(v1_pools) + id,
+    #                 "poolId": id,
+    #                 "lpAddress": addresses["LP"],
+    #                 "totalSupply": totalSupply,
+    #                 "totalStaked": totalStaked,
+    #                 "totalStakedInUSD": totalStakedInUSDC / 10 ** 6,
+    #                 "totalRewardRate": totalWeeklyRewardRate,
+    #                 "allocPoint": allocPoint,
+    #                 "apr": getAPR(mcUsdcRatio/10**12, totalSecondRewardRate, totalStakedInUSDC),
+    #                 "apr2": getAPR(doubleRewardUsdcRatio, rewardsPerBlock/(10**rewardDecimals), totalStakedInUSDC),
+    #                 "chefVersion": "v2",
+    #             }
+    #     )
 
     return data
 
